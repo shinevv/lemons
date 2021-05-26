@@ -1,5 +1,6 @@
 {
-    "name": "chanywn/lemon",
+    "name": "shinevv/lemons",
+    "version": "1.0.1",
     "description": "a modern php framework",
     "type": "library",
     "require": {
@@ -14,8 +15,12 @@
         "monolog/monolog": "^1.22",
         "erusev/parsedown": "^1.6"
     },
-    "license": "MIT",
+    "license": "",
     "authors": [
+        {
+            "name": "shinevv",
+            "email": "huojianwei@shinevv.com"
+        },
         {
             "name": "chanywn",
             "email": "chanywn@coedfun.cn"

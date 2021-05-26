@@ -13,7 +13,7 @@ class Database
 
 	private static $table;
 
-	// private static $join;
+	private static $join;
 	// length 2-3
 	private static $where;
 
@@ -38,7 +38,7 @@ class Database
 				self::$username, self::$password
 			);
 			self::$pdo->setAttribute(\PDO::ATTR_ERRMODE,\PDO::ERRMODE_WARNING);
-		} catch (PDOException $e) {
+		} catch (\PDOException $e) {
 			error($e->getMessage());
 			exit();
 		}
@@ -67,6 +67,12 @@ class Database
 		self::$where = [$key, addslashes($value), $op];
         return new self;
 	}
+
+    public function join($table, $where,$joinType='inner')
+    {
+        self::$join = [$table, $where, $joinType];
+        return new self;
+    }
 
 	public function contain($key, $value)
 	{
@@ -97,13 +103,24 @@ class Database
 		if(isset(self::$table)) {
 			$select = "SELECT ". $keys;
 			$from  = " FROM `". self::$table . "` ";
-			$where = isset(self::$where) ? " WHERE `". self::$where[0] .'` '. self::$where[2] .' "'. self::$where[1].'" ' : '';
-			$andWhere = isset(self::$andWhere) ? " AND `". self::$andWhere[0] .'` '. self::$andWhere[2] .' "'. self::$andWhere[1].'" ' : '';
-			$contain = isset(self::$contain) ? " WHERE ".self::$contain[0] . " LIKE '%" . self::$contain[1] ."%'" : '';
-			$order = isset(self::$order) ? (" ORDER BY " . self::$order->key . " ".self::$order->by) : '';
+			$join = isset(self::$join) ? self::$join[2]." JOIN ".self::$join[0]." ON ".self::$join[1]:"";
+			$whereExplode = explode('.',self::$where[0]);
+			$where = "";
+			foreach ($whereExplode as $key=>$value){
+			    if($key!=0){
+                    $where .= ".`".$value."`";
+                }else{
+                    $where .= "`".$value."`";
+                }
+            }
+			$where = isset(self::$where) ? " WHERE " . $where . "='" . self::$where[1] . "'" : '';
+			$andWhere = isset(self::$andWhere) ? " AND `" . self::$andWhere[0] . "` ". self::$andWhere[2] .' "' . self::$andWhere[1] . '" ' : '';
+			$contain = isset(self::$contain) ? " WHERE " . self::$contain[0] . " LIKE '%" . self::$contain[1] ."%'" : '';
+			$order = isset(self::$order) ? (" ORDER BY " . self::$order->key . " " . self::$order->by) : '';
 			$limit = isset(self::$limit) ? (" LIMIT " . self::$limit[0] . ",") . self::$limit[1] : '';
-			$sql = $select.$from.$where.$andWhere.$contain.$order.$limit;
+			$sql = $select.$from.$join.$where.$andWhere.$contain.$order.$limit;
 			self::reset();
+
 			return $sql;
 		} else {
 			return false;
@@ -118,12 +135,12 @@ class Database
 		self::$contain = null;
 		self::$order = null;
 		self::$limit = null;
+        self::$join = null;
 	}
 
 	public function get($keys = '*')
 	{
 		$sql = self::spellSelectSql($keys);
-		
 		if($sql !== false) {
 			$rows = self::fetchAll($sql);
 			self::close();
@@ -167,7 +184,7 @@ class Database
 		}
 
 		$sql  ="INSERT INTO `" .self::$table. "` ";
-		$sql .="(`".implode("`,`",array_keys($arr))."`) "; 
+		$sql .="(`".implode("`,`",array_keys($arr))."`) ";
 		$sql .=" VALUES ";
 		$sql .= "('".implode("','",$arr)."')";
 		self::reset();
@@ -184,9 +201,9 @@ class Database
 		$k = implode("`,`",$arr[0]);
 
 		$sql ="INSERT INTO `{$table}` ";
-		
-		$sql .="(`".$k."`) VALUES "; 
-		
+
+		$sql .="(`".$k."`) VALUES ";
+
 		for($i = 1; $i< count($arr); $i++)
 		{
 			$d = $i === 1 ? "" : ",";
@@ -203,13 +220,13 @@ class Database
 		if(is_object($arr)){
 			$arr = get_object_vars($arr);
 		}
-		
+
 		foreach($arr as $key => $value){
 			$arr[$key] = addslashes($value);
 		}
 		$sql = '';
 		$sql .="INSERT INTO `" .self::$table. "` ";
-		$sql .="(`".implode("`,`",array_keys($arr))."`) "; 
+		$sql .="(`".implode("`,`",array_keys($arr))."`) ";
 		$sql .=" VALUES ";
 		$sql .= "('".implode("','",$arr)."')";
 
@@ -227,10 +244,10 @@ class Database
 			} else {
 				$sql .= '`'.$key.'`'. ' = ' .' "'. addslashes($value) .'", ';
 			}
-			
+
 		}
 		$sql = rtrim($sql, ", ");
-		
+
 		if((is_int(self::$where[1]) || is_float(self::$where[1])) && !is_string(self::$where[1])) {
 			$sql .= isset(self::$where) ? " WHERE `". self::$where[0] .'` '. self::$where[2] .' '. self::$where[1].' ' : '';
 		} else {
@@ -265,7 +282,7 @@ class Database
 		}
 
 		self::reset();
-		
+
 		return self::exec($sql);
 	}
 
@@ -288,7 +305,6 @@ class Database
 		self::close();
 		return $lastInsertId;
 	}
-
 
 	public static function fetchAll($sql)
 	{
