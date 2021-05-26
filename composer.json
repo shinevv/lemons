@@ -1,6 +1,5 @@
 {
     "name": "shinevv/lemons",
-    "version": "1.0.1",
     "description": "a modern php framework",
     "type": "library",
     "require": {
