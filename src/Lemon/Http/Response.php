@@ -14,7 +14,7 @@ class Response
 
 	public function redirect($path)
 	{
-		header('Location: http://'.$_SERVER['HTTP_HOST'].$path);
+		header('Location: //'.$_SERVER['HTTP_HOST'].$path);
 		return $this;
 	}
 
