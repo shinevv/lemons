@@ -241,6 +241,9 @@ class Database
 		foreach ($arr as $key => $value) {
 			if( (is_int($value) || is_float($value)) && !is_string($value) ){
 				$sql .= '`'.$key.'`'. ' = ' . $value . ', ';
+			// 处理null
+			} else if($value === null) {
+				$sql .= '`'.$key.'`'. ' = ' .' NULL, ';
 			} else {
 				$sql .= '`'.$key.'`'. ' = ' .' "'. addslashes($value) .'", ';
 			}
