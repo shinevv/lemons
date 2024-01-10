@@ -257,7 +257,7 @@ class Database
 			$sql .= isset(self::$where) ? " WHERE `". self::$where[0] .'` '. self::$where[2] .' "'. self::$where[1].'" ' : '';
 		}
 
-		if( (is_int(self::$andWhere[1]) || is_float(self::$andWhere[1])) && !is_string(self::$andWhere[1]) ) {
+		if(isset(self::$andWhere[1]) && (is_int(self::$andWhere[1]) || is_float(self::$andWhere[1])) && !is_string(self::$andWhere[1]) ) {
 			$sql .= isset(self::$andWhere) ? " AND ". self::$andWhere[0] .' '. self::$andWhere[2] .' '. self::$andWhere[1].' ' : '';
 		} else {
 			$sql .= isset(self::$andWhere) ? " AND ". self::$andWhere[0] .' '. self::$andWhere[2] .' "'. self::$andWhere[1].'" ' : '';
