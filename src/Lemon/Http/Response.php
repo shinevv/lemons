@@ -41,8 +41,8 @@ class Response
 
 	public function json($words)
 	{
-		header("Content-Type:application/json");
-		echo json_encode($words);
+		// header("Content-Type:application/json");
+		echo json_encode($words, JSON_UNESCAPED_UNICODE);
 	}
 
 	public function code($code)
