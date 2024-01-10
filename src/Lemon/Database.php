@@ -104,15 +104,19 @@ class Database
 			$select = "SELECT ". $keys;
 			$from  = " FROM `". self::$table . "` ";
 			$join = isset(self::$join) ? self::$join[2]." JOIN ".self::$join[0]." ON ".self::$join[1]:"";
-			$whereExplode = explode('.',self::$where[0]);
+			$whereExplode = isset(self::$where[0]) ? explode('.',self::$where[0]) : null;
 			$where = "";
-			foreach ($whereExplode as $key=>$value){
-			    if($key!=0){
-                    $where .= ".`".$value."`";
-                }else{
-                    $where .= "`".$value."`";
-                }
-            }
+			if ($whereExplode)
+			{
+				foreach ($whereExplode as $key=>$value){
+					if($key!=0){
+						$where .= ".`".$value."`";
+					}else{
+						$where .= "`".$value."`";
+					}
+				}
+			}
+			
 			$where = isset(self::$where) ? " WHERE " . $where . "='" . self::$where[1] . "'" : '';
 			$andWhere = isset(self::$andWhere) ? " AND `" . self::$andWhere[0] . "` ". self::$andWhere[2] .' "' . self::$andWhere[1] . '" ' : '';
 			$contain = isset(self::$contain) ? " WHERE " . self::$contain[0] . " LIKE '%" . self::$contain[1] ."%'" : '';
